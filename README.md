@@ -1,8 +1,8 @@
-# office-status
+# office
 
 Is Changkun in the Office?
 
-https://office.changkun.de/status
+https://changkun.de/s/working?
 
 ## License
 
