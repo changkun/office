@@ -12,6 +12,7 @@ import (
 	"net/http"
 	"os/exec"
 	"strings"
+	"sync/atomic"
 	"time"
 )
 
@@ -47,6 +48,16 @@ func updateStatus() {
 		return
 	}
 
+	// initial status
+	atomic.StoreInt32(&status.status, statusOff)
+	status.lastAvailable.Store(time.Now())
+	lock, err := isScreenLocked()
+	if err == nil && !lock {
+		status.StartWork()
+	} else {
+		status.StopWork()
+	}
+
 	go func() {
 		t := time.Tick(10 * time.Second)
 		for range t {
@@ -59,8 +70,8 @@ func updateStatus() {
 			if err != nil {
 				log.Printf("lockscreen check err: %s\n", err)
 			}
-			log.Println("he left the office: ", time.Now())
 			status.StopWork()
+			log.Println("he left the office: ", status.lastAvailable.Load().(time.Time))
 		}
 	}()
 }

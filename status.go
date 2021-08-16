@@ -51,8 +51,9 @@ func (s *MyStatus) StartWork() {
 }
 
 func (s *MyStatus) StopWork() {
-	s.lastAvailable.Store(time.Now())
-	atomic.CompareAndSwapInt32(&s.status, statusOn, statusOff)
+	if swapped := atomic.CompareAndSwapInt32(&s.status, statusOn, statusOff); swapped {
+		s.lastAvailable.Store(time.Now())
+	}
 }
 
 func (s *MyStatus) StartVacation(until time.Time) {
